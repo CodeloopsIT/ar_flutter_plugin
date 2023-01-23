@@ -169,18 +169,29 @@ class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureReco
                     deleteAnchor(anchorName: name)
                 }
                 break
-            case "initGoogleCloudAnchorMode":
+           /* case "initGoogleCloudAnchorMode":
                 arcoreSession = try! GARSession.session()
 
                 if (arcoreSession != nil){
                     let configuration = GARSessionConfiguration();
                     configuration.cloudAnchorMode = .enabled;
                     arcoreSession?.setConfiguration(configuration, error: nil);
+                    if let token = JWTGenerator().generateWebToken(){
+                        arcoreSession!.setAuthToken(token)
+
+                        cloudAnchorHandler = CloudAnchorHandler(session: arcoreSession!)
+                        arcoreSession!.delegate = cloudAnchorHandler
+                        arcoreSession!.delegateQueue = DispatchQueue.main
+
+                        arcoreMode = true
+                    } else {
+                        sessionManagerChannel.invokeMethod("onError", arguments: ["Error generating JWT, have you added cloudAnchorKey.json into the example/ios/Runner directory?"])
+                    }
                 } else {
                     sessionManagerChannel.invokeMethod("onError", arguments: ["Error initializing Google AR Session"])
                 }
                     
-                break
+                break*/
             default:
                 result(FlutterMethodNotImplemented)
                 break
