@@ -195,7 +195,6 @@ class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureReco
             default:
                 result(FlutterMethodNotImplemented)
                 break
-        }
     }
 
     func initializeARView(arguments: Dictionary<String,Any>, result: FlutterResult){
