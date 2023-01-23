@@ -705,7 +705,7 @@ class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureReco
         }
     }
     
-    private class cloudAnchorUploadedListener: CloudAnchorListener {
+  /*  private class cloudAnchorUploadedListener: CloudAnchorListener {
         private var parent: IosARView
         
         init(parent: IosARView) {
@@ -789,7 +789,7 @@ class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureReco
         @unknown default:
             return "Unknown"
         }
-    }
+    }*/
 }
 
 // ---------------------- ARCoachingOverlayViewDelegate ---------------------------------------
