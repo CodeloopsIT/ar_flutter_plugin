@@ -3,7 +3,6 @@ import UIKit
 import Foundation
 import ARKit
 import Combine
-import ARCoreCloudAnchors
 
 class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureRecognizerDelegate, ARSessionDelegate {
     let sceneView: ARSCNView
@@ -19,7 +18,6 @@ class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureReco
     var cancellableCollection = Set<AnyCancellable>() //Used to store all cancellables in (needed for working with Futures)
     var anchorCollection = [String: ARAnchor]() //Used to bookkeep all anchors created by Flutter calls
     
-    private var cloudAnchorHandler: CloudAnchorHandler? = nil
     private var arcoreSession: GARSession? = nil
     private var arcoreMode: Bool = false
     private var configuration: ARWorldTrackingConfiguration!
@@ -159,16 +157,6 @@ class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureReco
                 self.objectManagerChannel.invokeMethod("onError", arguments: ["ObjectTEST from iOS"])
                 result(nil)
                 break
-            case "addAnchor":
-                if let type = arguments!["type"] as? Int {
-                    switch type {
-                    case 0: //Plane Anchor
-                        if let transform = arguments!["transformation"] as? Array<NSNumber>, let name = arguments!["name"] as? String {
-                            addPlaneAnchor(transform: transform, name: name)
-                            result(true)
-                        }
-                        result(false)
-                        break
                     default:
                         result(false)
                     
@@ -188,38 +176,10 @@ class IosARView: NSObject, FlutterPlatformView, ARSCNViewDelegate, UIGestureReco
                     let configuration = GARSessionConfiguration();
                     configuration.cloudAnchorMode = .enabled;
                     arcoreSession?.setConfiguration(configuration, error: nil);
-                    if let token = JWTGenerator().generateWebToken(){
-                        arcoreSession!.setAuthToken(token)
-                        
-                        cloudAnchorHandler = CloudAnchorHandler(session: arcoreSession!)
-                        arcoreSession!.delegate = cloudAnchorHandler
-                        arcoreSession!.delegateQueue = DispatchQueue.main
-                        
-                        arcoreMode = true
-                    } else {
-                        sessionManagerChannel.invokeMethod("onError", arguments: ["Error generating JWT, have you added cloudAnchorKey.json into the example/ios/Runner directory?"])
-                    }
                 } else {
                     sessionManagerChannel.invokeMethod("onError", arguments: ["Error initializing Google AR Session"])
                 }
                     
-                break
-            case "uploadAnchor":
-                if let anchorName = arguments!["name"] as? String, let anchor = anchorCollection[anchorName] {
-                    print("---------------- HOSTING INITIATED ------------------")
-                    if let ttl = arguments!["ttl"] as? Int {
-                        cloudAnchorHandler?.hostCloudAnchorWithTtl(anchorName: anchorName, anchor: anchor, listener: cloudAnchorUploadedListener(parent: self), ttl: ttl)
-                    } else {
-                        cloudAnchorHandler?.hostCloudAnchor(anchorName: anchorName, anchor: anchor, listener: cloudAnchorUploadedListener(parent: self))
-                    }
-                }
-                result(true)
-                break
-            case "downloadAnchor":
-                if let anchorId = arguments!["cloudanchorid"] as? String {
-                    print("---------------- RESOLVING INITIATED ------------------")
-                    cloudAnchorHandler?.resolveCloudAnchor(anchorId: anchorId, listener: cloudAnchorDownloadedListener(parent: self))
-                }
                 break
             default:
                 result(FlutterMethodNotImplemented)
